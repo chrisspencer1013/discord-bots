@@ -81,7 +81,10 @@ def export_phrases(context):
 async def on_message(context):
     channel = context.channel
     command, arg = prep_command(context.content)
-    logging.info(f"command: \n\t`{command}`, arg: \n\t`{arg}`")
+    if command is not None:
+        logging.info(f"command: \n\t`{command}`, arg: \n\t`{arg}`")
+    else:
+        logging.info(f"message: \n\t`{arg}`")
 
     if context.author.id == Users.SCRIBBLIO_BOT:
         # Don't process any messages the bot creates
