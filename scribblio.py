@@ -72,7 +72,12 @@ async def export_phrases(context):
 
         upvotes, downvotes = get_votes(message)
 
-        if command == Commands.ADD and upvotes >= downvotes and len(clean_msg) < 30:
+        if (
+            command == Commands.ADD
+            and upvotes >= downvotes
+            and len(clean_msg) < 30
+            and len(clean_msg) != 0
+        ):
             phrases.append(clean_msg)
 
     phrases = list(set(phrases))
@@ -98,7 +103,7 @@ async def on_message(context):
         if command == Commands.EXPORT:
             await export_phrases(context)
         elif command == Commands.ADD:
-            if len(arg) > 29:
+            if len(arg) > 29 or len(arg) == 0:
                 await context.add_reaction(Emojis.STOP)
             else:
                 await context.add_reaction(Emojis.UPVOTE)
