@@ -81,7 +81,9 @@ async def export_phrases(context):
             phrases.append(clean_msg)
 
     phrases = list(set(phrases))
-    await channel.send("```" + ", ".join(phrases) + "```")
+    phrases_str = ", ".join(phrases)
+    summary = f"# phrases: {len(phrases)} \n# chars: {len(phrases_str)} \n"
+    await channel.send(summary + "```" + phrases_str + "```")
 
 
 @client.event
