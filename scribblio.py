@@ -14,7 +14,7 @@ load_dotenv()
 client = commands.Bot(command_prefix="!")
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-SCRIBBLIO_TEXT_CHAT_ID = os.getenv("SCRIBBLIO_TEXT_CHAT_ID")
+SCRIBBLIO_TEXT_CHAT_ID = int(os.getenv("SCRIBBLIO_TEXT_CHAT_ID"))
 
 
 class Emojis(StringEnum):
@@ -30,8 +30,8 @@ class Commands(StringEnum):
 
 # just for ids, get any other info from the user object from discord
 class Users(IntEnum):
-    SCRIBBLIO_BOT = os.getenv("USER_ID_SCRIBBLIO_BOT")
-    ME = os.getenv("USER_ID_ME")
+    SCRIBBLIO_BOT = int(os.getenv("USER_ID_SCRIBBLIO_BOT"))
+    ME = int(os.getenv("USER_ID_ME"))
 
 
 def prep_command(message_content):
@@ -62,10 +62,9 @@ def get_votes(message):
     return upvotes, downvotes
 
 
-def export_phrases(context):
-    print(context)
+async def export_phrases(context):
     channel = context.channel
-    messages = context.channel.history().flatten()
+    messages = await context.channel.history().flatten()
     phrases = []
     for message in messages:
         command, arg = prep_command(message.content)
@@ -77,7 +76,7 @@ def export_phrases(context):
             phrases.append(clean_msg)
 
     phrases = list(set(phrases))
-    channel.send("```" + ", ".join(phrases) + "```")
+    await channel.send("```" + ", ".join(phrases) + "```")
 
 
 @client.event
@@ -95,10 +94,9 @@ async def on_message(context):
 
     # need this for client.commands to work with on message too
     # await client.process_commands(context)
-
     if context.channel.id == SCRIBBLIO_TEXT_CHAT_ID:
         if command == Commands.EXPORT:
-            export_phrases(context)
+            await export_phrases(context)
         elif command == Commands.ADD:
             if len(arg) > 29:
                 await context.add_reaction(Emojis.STOP)
