@@ -63,6 +63,7 @@ def get_votes(message):
 
 
 def export_phrases(context):
+    print(context)
     channel = context.channel
     messages = context.channel.history().flatten()
     phrases = []
@@ -84,9 +85,9 @@ async def on_message(context):
     channel = context.channel
     command, arg = prep_command(context.content)
     if command is not None:
-        logging.info(f"command: \n\t`{command}`, arg: \n\t`{arg}`")
+        logging.info(f"command: `{command}`, arg: `{arg}`")
     else:
-        logging.info(f"message: \n\t`{arg}`")
+        logging.info(f"message: `{arg}`")
 
     if context.author.id == Users.SCRIBBLIO_BOT:
         # Don't process any messages the bot creates
