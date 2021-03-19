@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 
 from util import StringEnum, IntEnum
 
+logging.basicConfig(level=logging.INFO)
+
 load_dotenv()
 client = commands.Bot(command_prefix="!")
 
@@ -62,7 +64,7 @@ def get_votes(message):
 
 def export_phrases(context):
     channel = context.channel
-    messages = await context.channel.history().flatten()
+    messages = context.channel.history().flatten()
     phrases = []
     for message in messages:
         command, arg = prep_command(message.content)
@@ -74,7 +76,7 @@ def export_phrases(context):
             phrases.append(clean_msg)
 
     phrases = list(set(phrases))
-    await channel.send("```" + ", ".join(phrases) + "```")
+    channel.send("```" + ", ".join(phrases) + "```")
 
 
 @client.event
@@ -112,7 +114,7 @@ async def on_message(context):
 
 @client.event
 async def on_ready():
-    print(f"{client.user} has connected to Discord!")
+    logging.info(f"{client.user} has connected to Discord!")
 
 
 client.run(TOKEN)
