@@ -1,37 +1,23 @@
 # discord bot
+#
+# TODO:
+# - word similarity deduping? (or atleast logging)
+# - weeb bot
+#   - google sheets integration
+#   - weighting (recent is lower, votes are higher)
+# https://developers.google.com/sheets/api/quickstart/python
 import os
 import re
 import logging
+
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
 
-from util import StringEnum, IntEnum
+import google_helper
+from constants import TextChatIds, Tokens, Emojis, Commands, Users
+
 
 logging.basicConfig(level=logging.INFO)
-
-load_dotenv()
-client = commands.Bot(command_prefix="!")
-
-TOKEN = os.getenv("DISCORD_TOKEN")
-SCRIBBLIO_TEXT_CHAT_ID = int(os.getenv("SCRIBBLIO_TEXT_CHAT_ID"))
-
-
-class Emojis(StringEnum):
-    UPVOTE = "👍"
-    DOWNVOTE = "👎"
-    STOP = "🛑"
-
-
-class Commands(StringEnum):
-    EXPORT = "!export"
-    ADD = "!add"
-
-
-# just for ids, get any other info from the user object from discord
-class Users(IntEnum):
-    SCRIBBLIO_BOT = int(os.getenv("USER_ID_SCRIBBLIO_BOT"))
-    ME = int(os.getenv("USER_ID_ME"))
 
 
 def prep_command(message_content):
@@ -73,7 +59,7 @@ async def export_phrases(context):
         upvotes, downvotes = get_votes(message)
 
         if (
-            command == Commands.ADD
+            command == Commands.Scribblio.ADD
             and upvotes >= downvotes
             and len(clean_msg) < 30
             and len(clean_msg) != 0
@@ -95,16 +81,16 @@ async def on_message(context):
     else:
         logging.info(f"message: `{arg}`")
 
-    if context.author.id == Users.SCRIBBLIO_BOT:
+    if context.author.id == Users.DISCORD_BOT:
         # Don't process any messages the bot creates
         return
 
     # need this for client.commands to work with on message too
     # await client.process_commands(context)
-    if context.channel.id == SCRIBBLIO_TEXT_CHAT_ID:
-        if command == Commands.EXPORT:
+    if context.channel.id == TextChatIds.SCRIBBLIO:
+        if command == Commands.Scribblio.EXPORT:
             await export_phrases(context)
-        elif command == Commands.ADD:
+        elif command == Commands.Scribblio.ADD:
             if len(arg) > 29 or len(arg) == 0:
                 await context.add_reaction(Emojis.STOP)
             else:
@@ -123,4 +109,5 @@ async def on_ready():
     logging.info(f"{client.user} has connected to Discord!")
 
 
-client.run(TOKEN)
+client = commands.Bot(command_prefix="!")
+client.run(Tokens.DISCORD)
