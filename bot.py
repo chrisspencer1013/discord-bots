@@ -11,13 +11,17 @@ import re
 import logging
 
 import discord
-from discord.ext import commands
+from discord.ext import commands as discord_commands
+
+import reddit
 
 import google_helper
 from constants import TextChatIds, Tokens, Emojis, Commands, Users
 
 
 logging.basicConfig(level=logging.INFO)
+
+client = discord_commands.Bot(command_prefix="!")
 
 
 def prep_command(message_content):
@@ -87,7 +91,19 @@ async def on_message(context):
 
     # need this for client.commands to work with on message too
     # await client.process_commands(context)
-    if context.channel.id == TextChatIds.SCRIBBLIO:
+
+    if context.channel.id == TextChatIds.TEST:
+        pass
+    elif context.channel.id == TextChatIds.ANIMALS:
+        if command == Commands.Animals.ANIMAL:
+            await channel.send(file=discord.File(reddit.get_random_image_path("ambimal")))
+    elif context.channel.id == TextChatIds.ADMIN:
+        if context.author.id == Users.ME:
+            if command == Commands.Admin.UPDATE_IMAGES:
+                await channel.send("Starting image downloads")
+                await reddit.update_all()
+                await channel.send("Complete")
+    elif context.channel.id == TextChatIds.SCRIBBLIO:
         if command == Commands.Scribblio.EXPORT:
             await export_phrases(context)
         elif command == Commands.Scribblio.ADD:
@@ -109,5 +125,4 @@ async def on_ready():
     logging.info(f"{client.user} has connected to Discord!")
 
 
-client = commands.Bot(command_prefix="!")
 client.run(Tokens.DISCORD)
